@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "new-network"
+version = "0.1.0"
+description = ""
+authors = ["nikita <misharinnikita@gmail.com>"]
+readme = "README.md"
+packages = [{include = "new_network"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "^4.2.1"
+djangorestframework = "^3.14.0"
+pyyaml = "^6.0"
+uritemplate = "^4.1.1"
+psycopg2 = "^2.9.6"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
