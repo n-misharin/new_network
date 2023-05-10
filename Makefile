@@ -31,6 +31,10 @@ db:
 run:
 	python src/manage.py runserver
 
+
+create_migrations:
+	python src/manage.py makemigrations
+
 superuser:
 	python src/manage.py createsuperuser --email test@test.ru --username super
 

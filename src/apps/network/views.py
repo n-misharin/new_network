@@ -1,5 +1,6 @@
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth.models import User
+from django.db.models import Subquery
 from rest_framework import permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -29,22 +30,29 @@ class Friends(APIView):
 
     def get(self, request):
         user = Token.objects.get(key=request.auth.key).user
-        result = Applications.objects.filter(owner=user)
-        for i in result:
-            print(i)
-        return Response({}, status.HTTP_200_OK)
+        out_result = Applications.objects.filter(owner=user)
+        in_result = Applications.objects.filter(friend=user, )
+        friends = Applications.objects.filter(
+            friend=user,
+            friend_id__in=Subquery(out_result.values('friend_id')),
+        )
+        return Response({
+            "user": user.id,
+            "out": str([application.friend.id for application in out_result]),
+            "in": str([application.owner.id for application in in_result]),
+            "friends": str([application.friend.id for application in friends]),
+        }, status.HTTP_200_OK)
 
 
 class AddFriend(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (TokenAuthentication,)
 
-    def get(self, request, user_id):
-        print("!!!!!!!!!!")
-        user = Token.objects.get(key=request.auth.key).user
-        # friend = User.objects.filter(user_id=user_id)
-        # Applications(owner=user, friend=friend)
-        return Response({}, status.HTTP_201_CREATED)
+    def get(self, request, username):
+        cur_user = Token.objects.get(key=request.auth.key).user
+        friend = User.objects.filter(username=username)
+        Applications(owner=cur_user, friend=friend[0]).save()
+        return Response({}, status.HTTP_200_OK)
 
 
 class CreateUser(APIView):
@@ -61,6 +69,8 @@ class CreateUser(APIView):
 
 
 class ConfirmUser(APIView):
-    def get(self, request, token):
+    def get(self, request):
+        for user in User.objects.all():
+            user.staff_status = True
+            user.save()
         # TODO: ..
-        ...
