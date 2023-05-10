@@ -4,7 +4,7 @@ import requests
 def index():
     res = requests.get(
         "http://localhost:8000/",
-        headers={"Authorization": "Token 7673d33fec0893db4bb18cc3243fc576da4c37e0"}
+        headers={"Authorization": "Token c507de5ee53d9dc4257f9f517712aba477ba0048"}
     )
     print(res.json())
 
@@ -13,7 +13,7 @@ def register():
     res = requests.post(
         "http://localhost:8000/register/",
         json={
-            "username": "nikita9",
+            "username": "nikita6",
             "password": "Cooler09-",
             "email": "test2@test.ru",
         }
@@ -26,7 +26,7 @@ def login():
     res = requests.post(
         "http://localhost:8000/token/",
         json={
-            "username": "nikita5",
+            "username": "nikita",
             "password": "Cooler09-",
         }
     )
@@ -37,7 +37,7 @@ def login():
 def friends():
     res = requests.get(
         "http://localhost:8000/friends",
-        headers={"Authorization": "Token 2bbca26f7413e25e1fbdf07050b015362cb3422a"}
+        headers={"Authorization": "Token c507de5ee53d9dc4257f9f517712aba477ba0048"}
     )
     print(res)
     print(res.json())
@@ -45,12 +45,13 @@ def friends():
 
 def add_friend():
     res = requests.get(
-        "http://localhost:8000/friend/add/nikita2",
-        headers={"Authorization": "Token 2bbca26f7413e25e1fbdf07050b015362cb3422a"}
+        "http://localhost:8000/friend/nikita2/",
+        headers={"Authorization": "Token c507de5ee53d9dc4257f9f517712aba477ba0048"}
     )
-    print(res)
+    print(res.json())
 
 
-# add_friend()
-friends()
+add_friend()
+# friends()
+# login()
 # register()

@@ -19,7 +19,7 @@ class Index(APIView):
     def get(self, request):
         user = Token.objects.get(key=request.auth.key).user
         content = {
-            'message': f'hello {user.username} ({user.email})'
+            'message': f'Hello, {user.username}! email: {user.email}'
         }
         return Response(content)
 
@@ -33,25 +33,54 @@ class Friends(APIView):
         out_result = Applications.objects.filter(owner=user)
         in_result = Applications.objects.filter(friend=user, )
         friends = Applications.objects.filter(
-            friend=user,
-            friend_id__in=Subquery(out_result.values('friend_id')),
+            owner_id__in=Subquery(out_result.values('friend_id')),
+            friend_id=user.id,
         )
         return Response({
             "user": user.id,
             "out": str([application.friend.id for application in out_result]),
             "in": str([application.owner.id for application in in_result]),
-            "friends": str([application.friend.id for application in friends]),
+            "friends": str([application.owner.id for application in friends]),
         }, status.HTTP_200_OK)
 
 
-class AddFriend(APIView):
+class Friend(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (TokenAuthentication,)
 
     def get(self, request, username):
         cur_user = Token.objects.get(key=request.auth.key).user
         friend = User.objects.filter(username=username)
+        res1 = Applications.objects.filter(owner=cur_user, friend=friend[0])
+        res2 = Applications.objects.filter(owner=friend[0], friend=cur_user)
+
+        content = {
+            "status": "No friend."
+        }
+
+        if len(res1) > 0 and len(res2) > 0:
+            content["status"] = "is friend"
+        elif len(res1) > 0:
+            content["status"] = "outgoing request"
+        elif len(res2) > 0:
+            content["status"] = "incoming request."
+
+        return Response(content, status.HTTP_200_OK)
+
+    def post(self, request, username):
+        cur_user = Token.objects.get(key=request.auth.key).user
+        if cur_user.username == username:
+            return Response({
+                "message": "Friendship request already exists."
+            }, status.HTTP_409_CONFLICT)
+        friend = User.objects.filter(username=username)
         Applications(owner=cur_user, friend=friend[0]).save()
+        return Response({}, status.HTTP_200_OK)
+
+    def delete(self, request, username):
+        cur_user = Token.objects.get(key=request.auth.key).user
+        friend = User.objects.filter(username=username)
+        Applications(owner=cur_user, friend=friend[0]).delete()
         return Response({}, status.HTTP_200_OK)
 
 

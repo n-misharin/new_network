@@ -7,7 +7,7 @@ test_env:
 	echo "SECRET_KEY=foo" >> .env
 	echo "DJANGO_ALLOWED_HOSTS=localhost" >> .env
 	echo "PASSWORD_RESET_TIMEOUT=60" >> .env
-	echo "POSTGRES_ENGINE=django" >> .env.db.backends.postgresql
+	echo "POSTGRES_ENGINE=django.db.backends.postgresql" >> .env
 	echo "POSTGRES_DB=postgres" >> .env
 	echo "POSTGRES_USER=user" >> .env
 	echo "POSTGRES_PASSWORD=hackme" >> .env

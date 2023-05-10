@@ -26,5 +26,5 @@ urlpatterns = [
     path('', views.Index.as_view()),
     path('confirm/', views.ConfirmUser.as_view()),
     path('friends/', views.Friends.as_view()),
-    path('friend/add/<username>/', views.AddFriend.as_view()),
+    path('friend/<username>/', views.Friend.as_view()),
 ]
