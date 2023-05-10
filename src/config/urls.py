@@ -24,4 +24,7 @@ urlpatterns = [
     path('register/', views.CreateUser.as_view()),
     path('token/', obtain_auth_token),
     path('', views.Index.as_view()),
+    path('confirm/{token}', views.ConfirmUser.as_view()),
+    path('friends/', views.Friends.as_view()),
+    path('friend/add/{user_id}/', views.AddFriend.as_view()),
 ]

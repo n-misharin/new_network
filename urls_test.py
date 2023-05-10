@@ -4,7 +4,7 @@ import requests
 def index():
     res = requests.get(
         "http://localhost:8000/",
-        headers={"Authorization": "Token 08297b19db8d994e6edd5df4f30499153e8cb1d0"}
+        headers={"Authorization": "Token 7673d33fec0893db4bb18cc3243fc576da4c37e0"}
     )
     print(res.json())
 
@@ -13,12 +13,13 @@ def register():
     res = requests.post(
         "http://localhost:8000/register/",
         json={
-            "username": "nikita2",
+            "username": "nikita5",
             "password": "Cooler09-",
+            "email": "test2@test.ru",
         }
     )
     print(res.status_code)
-    print(res)
+    print(res.json())
 
 
 def login():
@@ -33,4 +34,20 @@ def login():
     print(res.json())
 
 
-register()
+def friends():
+    res = requests.get(
+        "http://localhost:8000/friends",
+        headers={"Authorization": "Token 7673d33fec0893db4bb18cc3243fc576da4c37e0"}
+    )
+    print(res.text)
+
+
+def add_friend():
+    res = requests.get(
+        "http://localhost:8000/friend/add/1",
+        headers={"Authorization": "Token 7673d33fec0893db4bb18cc3243fc576da4c37e0"}
+    )
+    print(res)
+
+
+add_friend()
