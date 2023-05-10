@@ -3,8 +3,7 @@ name = "new-network"
 version = "0.1.0"
 description = ""
 authors = ["nikita <misharinnikita@gmail.com>"]
-readme = "README.md"
-packages = [{include = "new_network"}]
+packages = [{include = "src/apps"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

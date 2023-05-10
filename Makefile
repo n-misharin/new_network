@@ -18,19 +18,19 @@ db:
 	docker-compose -f docker-compose.yml up -d
 
 run:
-	cd src && python manage.py runserver
+	python src/manage.py runserver
 
 superuser:
 	python src/manage.py createsuperuser --email test@test.ru --username super
 
 migrate:
-	cd src && python manage.py migrate
+	python src/manage.py migrate
 
 token:
-	cd src && python manage.py drf_create_token nikita
+	python src/manage.py drf_create_token super
 
 schema:
-	cd src && python manage.py generateschema --file openapi-schema.yml
+	python src/manage.py generateschema --file openapi-schema.yml
 
 open_db:
 	docker exec -it $(DB_CONTAINER_NAME) psql -d $(POSTGRES_DB) -U $(POSTGRES_USER)
