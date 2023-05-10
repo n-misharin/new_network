@@ -21,12 +21,14 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
     # path('', views.Index.as_view()),
-    # path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
     # path('confirm/', views.ConfirmUser.as_view()),
     path('register/', views.CreateUser.as_view()),
     path('token/', obtain_auth_token),
-    path('friends/all/', views.AllFriends.as_view()),
-    path('friends/out/', views.OutFriends.as_view()),
-    path('friends/in/', views.InFriends.as_view()),
-    path('friend/<username>/', views.Friend.as_view()),
+
+    path('friendship/<username>/', views.FriendAPIView.as_view()),
+
+    path('requests/out/', views.OutgoingRequestAPIView.as_view()),
+    path('requests/in/', views.IncomingRequestAPIView.as_view()),
+    path('requests/accepted/', views.AcceptedRequestAPIView.as_view()),
 ]

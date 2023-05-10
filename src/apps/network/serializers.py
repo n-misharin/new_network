@@ -2,13 +2,13 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.admin import User
 
-UserModel = get_user_model()
+from .models import Applications  # , UserStatus
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'password', 'email')
+        fields = ('id', 'username', 'email')
         write_only_fields = ('password',)
         read_only_fields = ('id',)
 
@@ -22,4 +22,36 @@ class UserSerializer(serializers.ModelSerializer):
 
         return user
 
-# TODO: ...
+
+class OutgoingSerializer(serializers.ModelSerializer):
+    user = UserSerializer(source='friend')
+
+    class Meta:
+        model = Applications
+        fields = ('id', 'user')
+
+
+class IncomingSerializer(serializers.ModelSerializer):
+    user = UserSerializer(source='owner')
+
+    class Meta:
+        model = Applications
+        fields = ('id', 'user')
+
+
+class ApplicationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Applications
+        fields = ('id', 'owner_id', 'friend_id',)
+        read_only_fields = ('id',)
+
+    def create(self, validated_data):
+        owner_id = validated_data['owner_id']
+        friend_id = validated_data['friend_id']
+        application = Applications.objects.create(
+            owner_id=owner_id,
+            friend_id=friend_id,
+        )
+        application.save()
+        return application
+
