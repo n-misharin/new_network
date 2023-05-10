@@ -20,11 +20,13 @@ from apps.network import views
 from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # path('', views.Index.as_view()),
+    # path('admin/', admin.site.urls),
+    # path('confirm/', views.ConfirmUser.as_view()),
     path('register/', views.CreateUser.as_view()),
     path('token/', obtain_auth_token),
-    path('', views.Index.as_view()),
-    path('confirm/', views.ConfirmUser.as_view()),
-    path('friends/', views.Friends.as_view()),
+    path('friends/all/', views.AllFriends.as_view()),
+    path('friends/out/', views.OutFriends.as_view()),
+    path('friends/in/', views.InFriends.as_view()),
     path('friend/<username>/', views.Friend.as_view()),
 ]

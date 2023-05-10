@@ -17,13 +17,14 @@ test_env:
 	echo "DB_CONTAINER_NAME=network_postgres" >> .env
 
 install:
-	#pip install poetry
+	pip install poetry
 	poetry install
-	poetry shell
 	make test_env
+	poetry shell
 	make db
+	make create_migrations
 	make migrate
-	make superuser
+	#make superuser
 
 db:
 	docker-compose -f docker-compose.yml up -d

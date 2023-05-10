@@ -12,35 +12,55 @@ from .models import Applications
 from .serializers import UserSerializer
 
 
-class Index(APIView):
+# class Index(APIView):
+#     permission_classes = (IsAuthenticated,)
+#     authentication_classes = (TokenAuthentication,)
+#
+#     def get(self, request):
+#         user = Token.objects.get(key=request.auth.key).user
+#         content = {
+#             'message': f'Hello, {user.username}! email: {user.email}'
+#         }
+#         return Response(content)
+
+
+class AllFriends(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = (TokenAuthentication,)
+
+    def get(self, request):
+        cur_user = Token.objects.get(key=request.auth.key).user
+        out_friends = Applications.objects.filter(owner=cur_user)
+        friends = Applications.objects.filter(
+            owner_id__in=Subquery(out_friends.values('friend_id')),
+            friend_id=cur_user.id,
+        )
+        return Response({
+            "users": str([application.owner.id for application in friends]),
+        }, status.HTTP_200_OK)
+
+
+class InFriends(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (TokenAuthentication,)
 
     def get(self, request):
         user = Token.objects.get(key=request.auth.key).user
-        content = {
-            'message': f'Hello, {user.username}! email: {user.email}'
-        }
-        return Response(content)
+        in_result = Applications.objects.filter(friend=user, )
+        return Response({
+            "users": str([application.owner.id for application in in_result]),
+        }, status.HTTP_200_OK)
 
 
-class Friends(APIView):
+class OutFriends(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (TokenAuthentication,)
 
     def get(self, request):
         user = Token.objects.get(key=request.auth.key).user
         out_result = Applications.objects.filter(owner=user)
-        in_result = Applications.objects.filter(friend=user, )
-        friends = Applications.objects.filter(
-            owner_id__in=Subquery(out_result.values('friend_id')),
-            friend_id=user.id,
-        )
         return Response({
-            "user": user.id,
-            "out": str([application.friend.id for application in out_result]),
-            "in": str([application.owner.id for application in in_result]),
-            "friends": str([application.owner.id for application in friends]),
+            "users": str([application.friend.id for application in out_result]),
         }, status.HTTP_200_OK)
 
 
@@ -89,17 +109,13 @@ class CreateUser(APIView):
         serialized = UserSerializer(data=request.data)
         if serialized.is_valid():
             user = serialized.create(request.data)
-            account_activation_token = PasswordResetTokenGenerator().make_token(user)
-            return Response({
-                'confirm_link': f'http://localhost:8000/confirm/{account_activation_token}/'
-            }, status=status.HTTP_201_CREATED)
+            # TODO: send token
+            return Response(serialized.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serialized._errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ConfirmUser(APIView):
     def get(self, request):
-        for user in User.objects.all():
-            user.staff_status = True
-            user.save()
         # TODO: ..
+        ...
