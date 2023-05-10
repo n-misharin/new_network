@@ -3,55 +3,10 @@ info:
   title: ''
   version: ''
 paths:
-  /friends/all/:
-    get:
-      operationId: listAllFriends
-      description: 'Получить всех друзей авторизованного пользователя.'
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items: {}
-          description: ''
-      tags:
-      - friends
-  /friends/out/:
-    get:
-      operationId: listOutFriends
-      description: 'Получить все исходящие заявки в друзья от авторизованного пользователя.'
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items: {}
-          description: ''
-      tags:
-      - friends
-  /friends/in/:
-    get:
-      operationId: listInFriends
-      description: 'Получить все входящие заявки в друзья от авторизованного пользователя.'
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items: {}
-          description: ''
-      tags:
-      - friends
-  /friend/{username}/:
+  /friendship/{username}/:
     get:
       operationId: retrieveFriend
-      description: 'Получить статус отношений авторизированного пользователя и пользователя `username`'
+      description: ''
       parameters:
       - name: username
         in: path
@@ -66,10 +21,10 @@ paths:
               schema: {}
           description: ''
       tags:
-      - friend
+      - friendship
     post:
       operationId: createFriend
-      description: 'Отправить заявку в друзья пользователя `username`'
+      description: ''
       parameters:
       - name: username
         in: path
@@ -92,10 +47,10 @@ paths:
               schema: {}
           description: ''
       tags:
-      - friend
+      - friendship
     delete:
       operationId: destroyFriend
-      description: 'Отозвать заявку в друзья у пользователя `username`'
+      description: ''
       parameters:
       - name: username
         in: path
@@ -107,11 +62,59 @@ paths:
         '204':
           description: ''
       tags:
-      - friend
+      - friendship
+  /requests/out/:
+    get:
+      operationId: listOutgoings
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Outgoing'
+          description: ''
+      tags:
+      - requests
+  /requests/in/:
+    get:
+      operationId: listIncomings
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Incoming'
+          description: ''
+      tags:
+      - requests
+  /requests/accepted/:
+    get:
+      operationId: listIncomings
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Incoming'
+          description: ''
+      tags:
+      - requests
   /register/:
     post:
       operationId: createCreateUser
-      description: 'Зарегистрировать пользователя.'
+      description: ''
       parameters: []
       requestBody:
         content:
@@ -132,7 +135,7 @@ paths:
   /token/:
     post:
       operationId: createAuthToken
-      description: 'Получить токен футентификации.'
+      description: ''
       parameters: []
       requestBody:
         content:
@@ -156,6 +159,58 @@ paths:
       - token
 components:
   schemas:
+    Outgoing:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+              readOnly: true
+            username:
+              type: string
+              description: Required. 150 characters or fewer. Letters, digits and
+                @/./+/-/_ only.
+              pattern: ^[\w.@+-]+\z
+              maxLength: 150
+            email:
+              type: string
+              format: email
+              maxLength: 254
+          required:
+          - username
+      required:
+      - user
+    Incoming:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+              readOnly: true
+            username:
+              type: string
+              description: Required. 150 characters or fewer. Letters, digits and
+                @/./+/-/_ only.
+              pattern: ^[\w.@+-]+\z
+              maxLength: 150
+            email:
+              type: string
+              format: email
+              maxLength: 254
+          required:
+          - username
+      required:
+      - user
     AuthToken:
       type: object
       properties:
