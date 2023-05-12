@@ -1,8 +1,7 @@
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
 from rest_framework.authtoken.admin import User
 
-from .models import Applications  # , UserStatus
+from .models import Applications
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -39,6 +38,14 @@ class IncomingSerializer(serializers.ModelSerializer):
         fields = ('id', 'user')
 
 
+class FriendSerializer(serializers.ModelSerializer):
+    user = UserSerializer(source='owner')
+
+    class Meta:
+        model = Applications
+        fields = ('id', 'user')
+
+
 class ApplicationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Applications
@@ -54,4 +61,3 @@ class ApplicationsSerializer(serializers.ModelSerializer):
         )
         application.save()
         return application
-

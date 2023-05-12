@@ -1,7 +1,7 @@
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth.models import User
 from django.db.models import Subquery
-from rest_framework import permissions, status, generics
+from django.shortcuts import render
+from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -9,7 +9,8 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 
 from .models import Applications
-from .serializers import UserSerializer, OutgoingSerializer, IncomingSerializer, ApplicationsSerializer
+from .serializers import UserSerializer, OutgoingSerializer, IncomingSerializer, ApplicationsSerializer, \
+    FriendSerializer
 
 
 class OutgoingRequestAPIView(generics.ListAPIView):
@@ -29,13 +30,15 @@ class IncomingRequestAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         cur_user = Token.objects.get(key=self.request.auth.key).user
-        return Applications.objects.filter(friend_id=cur_user.id)
+        return Applications.objects.filter(
+            friend_id=cur_user.id,
+        )
 
 
 class AcceptedRequestAPIView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (TokenAuthentication,)
-    serializer_class = IncomingSerializer
+    serializer_class = FriendSerializer
 
     def get_queryset(self):
         cur_user = Token.objects.get(key=self.request.auth.key).user
@@ -52,19 +55,27 @@ class FriendAPIView(APIView):
 
     def get(self, request, username):
         cur_user = Token.objects.get(key=request.auth.key).user
+
+        if username == cur_user.username:
+            return Response({"status": "yourself"}, status.HTTP_200_OK)
+
         friend = User.objects.filter(username=username)
-        res1 = Applications.objects.filter(owner=cur_user, friend=friend[0])
-        res2 = Applications.objects.filter(owner=friend[0], friend=cur_user)
+
+        if len(friend) == 0:
+            return Response(status.HTTP_404_NOT_FOUND)
+
+        outgoing = Applications.objects.filter(owner=cur_user, friend=friend[0])
+        incoming = Applications.objects.filter(owner=friend[0], friend=cur_user)
 
         content = {
             "status": "No friend."
         }
 
-        if len(res1) > 0 and len(res2) > 0:
+        if len(outgoing) > 0 and len(incoming) > 0:
             content["status"] = "is friend"
-        elif len(res1) > 0:
+        elif len(outgoing) > 0:
             content["status"] = "outgoing request"
-        elif len(res2) > 0:
+        elif len(incoming) > 0:
             content["status"] = "incoming request."
 
         return Response(content, status.HTTP_200_OK)
@@ -89,10 +100,7 @@ class FriendAPIView(APIView):
             'friend_id': friend[0].id,
         }
 
-        application = Applications.objects.filter(
-            owner_id=request_data['owner_id'],
-            friend_id=request_data['friend_id']
-        )
+        application = Applications.objects.filter(**request_data)
 
         if len(application) != 0:
             return Response({
@@ -110,8 +118,21 @@ class FriendAPIView(APIView):
     def delete(self, request, username):
         cur_user = Token.objects.get(key=request.auth.key).user
         friend = User.objects.filter(username=username)
+
+        if len(friend) == 0:
+            return Response({
+                "message": "User not found."
+            }, status.HTTP_404_NOT_FOUND)
+
+        outgoing_request = Applications.objects.filter(owner_id=cur_user.id, friend_id=friend.id)
+
+        if len(outgoing_request) == 0:
+            return Response({
+                "message": f"Your friendship request to `{username}` not found."
+            }, status.HTTP_404_NOT_FOUND)
+
         Applications(owner=cur_user, friend=friend[0]).delete()
-        return Response({}, status.HTTP_200_OK)
+        return Response(status.HTTP_200_OK)
 
 
 class CreateUser(APIView):
